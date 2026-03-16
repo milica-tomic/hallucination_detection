@@ -22,14 +22,13 @@ Additionaly, the learned vectors are also used to compute the **Semantic Groundi
 
 First, if you don't have some of the libraries mentioned in the [Requirements](#requirements) section, please do as follows:
 ```
-pip install numpy, os, json, zipfile, urllib
+pip install numpy
 ```
 After you check that all libraries are installed, run the first (the only) cell in the code.
 
-The Text8 and HaluEval datasets will download automatically and the analogy evaluation dataset will be generated during executon. 
+The [Text8](https://mattmahoney.net/dc/text8.zip), [HaluEval](https://github.com/RUCAIBox/HaluEval) and [Google Analogy](https://github.com/tmikolov/word2vec) datasets will download automatically during executon. 
 
-You may also download the saved_model to independently try and evaluate the model's performance.
-
+You may also download the w2v_model to independently try and evaluate the model's performance.
 
 ## Model Architecture
 
@@ -46,7 +45,6 @@ W_out = (random(V, D) - 0.5) / D
 ```
 
 Only `W_in` is used for evaluation. The difference, compared to Mikolov et al. (2013b), is the initialization of W_out. In this implementation, it is initialized with random values, whereas in the original paper, it is initialized only with zeros. This choice was made to facilitate faster symmetry breaking and prevent numerical plateaus during the initial stages of training, similar to the approach used in **Gensim**.
-
 
 ## Training Procedure
 
@@ -152,16 +150,29 @@ Nearest neighbours of 'king':
   ...
 ```
 
+Note that `vii` and `viii` appear due to frequent co-occurrence with
+  royal names (Henry VIII, Louis VII) in Wikipedia text — a direct
+  consequence of distributional semantics rather than explicit encoding.
+
 ### 2. Analogy Accuracy
 
 Tests the linear structure of the embedding space: **a − b + c = ?**
 
+example:
 ```
 king - man + woman  →  queen    ✓
 paris - france + germany  →  berlin   ✓
 ```
 
 Accuracy = % of analogies where top-1 prediction matches the expected word.
+
+The benchmark used is the original Google word analogy dataset (Mikolov et al., 2013a), containing 19,544 analogies split into semantic categories (e.g. capital cities, currency) and syntactic categories (e.g. plural forms, verb tenses). Words absent from the vocabulary are skipped and counted separately.
+
+**Result: 1.4% accuracy (241/17,827 evaluated, 1,717 skipped)**
+
+This low accuracy is expected and consistent with the literature.
+The original Word2Vec paper reports ~70% accuracy, but was trained on
+100 billion tokens, approximately 25,000x more data than Text8 (~4M tokens).
 
 ### 3. SGI Hallucination Detection
 
@@ -175,8 +186,6 @@ $$\text{SGI}(r; q, c) = \frac{\theta(r, q)}{\theta(r, c)} = \frac{\arccos(\hat{r
 - **SGI < 1** — response stays near question → hallucination signal
 
 Sentence vectors are computed as the mean of w2v word vectors in the text.
-
-#### Why W2V yields lower accuracy than sentence transformers
 
 The paper (Marin, 2025) reports ~80% accuracy using sentence transformers. This w2v implementation achieves lower accuracy because:
 
