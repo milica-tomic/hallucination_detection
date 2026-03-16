@@ -28,8 +28,6 @@ After you check that all libraries are installed, run the first (the only) cell 
 
 The [Text8](https://mattmahoney.net/dc/text8.zip), [HaluEval](https://github.com/RUCAIBox/HaluEval) and [Google Analogy](https://github.com/tmikolov/word2vec) datasets will download automatically during executon. 
 
-You may also download the w2v_model to independently try and evaluate the model's performance.
-
 ## Model Architecture
 
 Two embedding matrices, both of shape `(V, D)`:
@@ -149,15 +147,15 @@ from the full 17M token Text8 corpus).
 
 | Query | Top neighbours |
 |---|---|
-| `king` | afonso, pop, ii, emperor, governor, lincoln |
-| `paris` | manuel, saxonz, hungarian, dubline, pulityer |
-| `computer` | graphis, bios, machine, audio, file |
-| `music` | fictional, supporting, folk, kane, picture |
+| `king` | prince, vii, throne, crowned, emperor |
+| `paris` | dresden, bologna, frankfurt, muich, chapelle |
+| `computer` |designers, spreadsheet, computers, machine, computing |
+| `music` | musical, jazz, dance, musicians, hip |
 
 Despite training on a relatively small corpus, the model captures
 meaningful semantic clusters:
 
-Note that `ii` appear due to frequent co-occurrence with
+Note that `vii` appear due to frequent co-occurrence with
   royal names (Henry VIII, Louis VII) in Wikipedia text — a direct
   consequence of distributional semantics rather than explicit encoding.
 
@@ -180,6 +178,8 @@ The benchmark used is the original Google word analogy dataset (Mikolov et al., 
 This low accuracy is expected and consistent with the literature.
 The original Word2Vec paper reports ~70% accuracy, but was trained on
 100 billion tokens, approximately 25,000x more data than Text8 (~4M tokens).
+
+One of the ideas that would lead to better results is using Top-5 metrics instead of Top-1, as well as increasing the number of epochs.
 
 ### 3. SGI Hallucination Detection
 
@@ -204,6 +204,9 @@ The paper (Marin, 2025) reports ~80% accuracy using sentence transformers. This 
    high-entropy terms in the HaluEval dataset, which are often the "smoking gun" for detecting a hallucination, simply
    aren't in our vocabulary. Modern transformers have seen orders of magnitude more data, allowing them to anchor even the rarest terms.
 
+## Additional 
+
+In the following repositories, [learning_to_reason_with_small_models](https://github.com/milica-tomic/learning_to_reason_with_small_models) and [test_time_reinforcement_learning](https://github.com/milica-tomic/test_time_reinforcement_learning), you can see some other modifications to the skip-gram with negative sampling implementation.
 
 ## References
 
