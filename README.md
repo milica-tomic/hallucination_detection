@@ -1,4 +1,4 @@
-# Hallucination detection
+# Hallucination Detection
 
 Implementation of the Word2Vec training loop from scratch using only NumPy. 
 
@@ -52,6 +52,8 @@ Only `W_in` is used for evaluation. The difference, compared to Mikolov et al. (
 
 For each center word $v_c$, predict its surrounding context words within a window.  
 The **dynamic window** $c \sim \text{Uniform}[1, \text{window}]$ gives closer words a higher effective weight.
+
+The difference comparing to the original paper is that, instead of pre-calculating every single word pair, a generator is implemented that yields batches as needed. This makes the training much more RAM-friendly, even with large corpora.
 
 ### Negative Sampling Loss (SGNS)
 
@@ -141,16 +143,21 @@ s_neg = np.einsum('bd,bkd->bk', vc, u_neg)
 
 ### 1. Nearest Neighbours
 
-Cosine similarity between a query vector and all vectors in `W_in`:
+Cosine similarity between a query vector and all vectors in `W_in` is used.
+The model was trained on approximately 4M tokens (after subsampling
+from the full 17M token Text8 corpus).
 
-```
-Nearest neighbours of 'king':
-  queen    0.78
-  prince   0.71
-  ...
-```
+| Query | Top neighbours |
+|---|---|
+| `king` | afonso, pop, ii, emperor, governor, lincoln |
+| `paris` | manuel, saxonz, hungarian, dubline, pulityer |
+| `computer` | graphis, bios, machine, audio, file |
+| `music` | fictional, supporting, folk, kane, picture |
 
-Note that `vii` and `viii` appear due to frequent co-occurrence with
+Despite training on a relatively small corpus, the model captures
+meaningful semantic clusters:
+
+Note that `ii` appear due to frequent co-occurrence with
   royal names (Henry VIII, Louis VII) in Wikipedia text — a direct
   consequence of distributional semantics rather than explicit encoding.
 
